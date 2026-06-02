@@ -10,6 +10,9 @@ const config: CapacitorConfig = {
       backgroundColor: "#f8d9ba",
       showSpinner: false,
     },
+    MediaSession: {
+      foregroundService: "always"
+    }
   },
 };
 
