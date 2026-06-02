@@ -1,0 +1,6 @@
+{
+  "name": "NeonAmp",
+  "description": "Android-style media player with library, playlists, audio visualization, EQ, and themes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
