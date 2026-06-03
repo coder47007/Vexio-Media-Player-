@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.neonamp.app"
+    namespace = "com.vexio.mediaplayer"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.neonamp.app"
+        applicationId "com.vexio.mediaplayer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -16,8 +16,19 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    
+    signingConfigs {
+        release {
+            storeFile file("release.keystore")
+            storePassword "Admin@12345"
+            keyAlias "vexio_key"
+            keyPassword "Admin@12345"
+        }
+    }
+    
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

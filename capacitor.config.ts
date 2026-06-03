@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.neonamp.app',
+  appId: 'com.vexio.mediaplayer',
   appName: 'Vexio Media player',
   webDir: 'dist',
   plugins: {

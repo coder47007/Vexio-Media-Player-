@@ -1,4 +1,4 @@
-package com.neonamp.app;
+package com.vexio.mediaplayer;
 
 import android.os.Bundle;
 import android.webkit.WebView;
