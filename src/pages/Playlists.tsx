@@ -1,8 +1,8 @@
 import { useAppStore } from '../store.ts';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { GripVertical, Play, ListMusic, Plus } from 'lucide-react';
+import { Play, Plus, ListMusic, GripVertical, MoreVertical, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Song } from '../types.ts';
 
 export default function Playlists() {
@@ -11,10 +11,18 @@ export default function Playlists() {
   const playSong = useAppStore(state => state.playSong);
   const updatePlaylistOrder = useAppStore(state => state.updatePlaylistOrder);
   const createPlaylist = useAppStore(state => state.createPlaylist);
+  const deletePlaylist = useAppStore((state) => state.deletePlaylist);
 
   const [activePlaylistId, setActivePlaylistId] = useState<string | null>(playlists.length > 0 ? playlists[0].id : null);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
+  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
+
+  useEffect(() => {
+    const close = () => setMenuOpenFor(null);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, []);
 
   const activePlaylist = playlists.find(p => p.id === activePlaylistId);
   const playlistSongs = activePlaylist
@@ -63,18 +71,42 @@ export default function Playlists() {
             <p className="text-foreground/50 text-sm p-2 text-center mt-4">No playlists yet.</p>
          ) : (
            playlists.map(p => (
-             <button
-               key={p.id}
-               onClick={() => setActivePlaylistId(p.id)}
-               className={clsx(
-                 "flex items-center gap-3 p-3 rounded-xl transition-all text-left whitespace-nowrap min-w-[150px] md:min-w-0 flex-shrink-0 md:flex-shrink",
-                 activePlaylistId === p.id ? "bg-primary/20 text-primary" : "text-foreground hover:bg-surface"
+             <div key={p.id} className="relative flex items-center group">
+               <button
+                 onClick={() => setActivePlaylistId(p.id)}
+                 className={clsx(
+                   "flex items-center gap-3 p-3 rounded-xl transition-all text-left whitespace-nowrap flex-1 min-w-[150px] md:min-w-0 flex-shrink-0 md:flex-shrink",
+                   activePlaylistId === p.id ? "bg-primary/20 text-primary" : "text-foreground hover:bg-surface"
+                 )}
+               >
+                 <ListMusic size={20} className={activePlaylistId === p.id ? "text-primary" : "text-foreground/60"} />
+                 <div className="truncate flex-1 font-medium pr-6">{p.name}</div>
+                 <div className="text-xs opacity-60 absolute right-12 md:right-10 pointer-events-none">{p.songs.length}</div>
+               </button>
+               
+               <button 
+                 onClick={(e) => { e.stopPropagation(); setMenuOpenFor(menuOpenFor === p.id ? null : p.id); }}
+                 className="absolute right-1 p-2 rounded-full hover:bg-black/20 text-foreground/60 hover:text-foreground transition-colors"
+               >
+                 <MoreVertical size={16} />
+               </button>
+               
+               {menuOpenFor === p.id && (
+                 <div className="absolute right-0 top-full mt-1 w-40 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50">
+                   <button 
+                     onClick={(e) => { 
+                       e.stopPropagation(); 
+                       deletePlaylist(p.id); 
+                       if (activePlaylistId === p.id) setActivePlaylistId(null);
+                       setMenuOpenFor(null); 
+                     }}
+                     className="w-full px-4 py-3 text-left text-sm flex items-center gap-3 hover:bg-red-500/10 text-red-500 transition-colors"
+                   >
+                     <Trash2 size={16} /> Delete Playlist
+                   </button>
+                 </div>
                )}
-             >
-               <ListMusic size={20} className={activePlaylistId === p.id ? "text-primary" : "text-foreground/60"} />
-               <div className="truncate flex-1 font-medium">{p.name}</div>
-               <div className="text-xs opacity-60">{p.songs.length}</div>
-             </button>
+             </div>
            ))
          )}
          </div>

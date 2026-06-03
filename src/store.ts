@@ -12,8 +12,10 @@ interface AppState {
   deleteSong: (id: string) => void;
   playlists: Playlist[];
   createPlaylist: (name: string, songIds: string[]) => void;
+  deletePlaylist: (id: string) => void;
   updatePlaylistOrder: (playlistId: string, newSongIds: string[]) => void;
   addSongToPlaylist: (playlistId: string, songId: string) => void;
+  addSongsToPlaylist: (playlistId: string, songIds: string[]) => void;
   
   currentSongId: string | null;
   isPlaying: boolean;
@@ -62,11 +64,24 @@ export const useAppStore = create<AppState>()(
       createPlaylist: (name, songIds) => set((state) => ({
         playlists: [...state.playlists, { id: Date.now().toString(), name, songs: songIds }]
       })),
+      deletePlaylist: (id) => set((state) => ({
+        playlists: state.playlists.filter(p => p.id !== id)
+      })),
       updatePlaylistOrder: (playlistId, newSongIds) => set((state) => ({
         playlists: state.playlists.map(p => p.id === playlistId ? { ...p, songs: newSongIds } : p)
       })),
       addSongToPlaylist: (playlistId, songId) => set((state) => ({
         playlists: state.playlists.map(p => p.id === playlistId && !p.songs.includes(songId) ? { ...p, songs: [...p.songs, songId] } : p)
+      })),
+      addSongsToPlaylist: (playlistId, songIds) => set((state) => ({
+        playlists: state.playlists.map(p => {
+           if (p.id !== playlistId) return p;
+           const newSongs = [...p.songs];
+           for (const id of songIds) {
+              if (!newSongs.includes(id)) newSongs.push(id);
+           }
+           return { ...p, songs: newSongs };
+        })
       })),
       
       currentSongId: null,

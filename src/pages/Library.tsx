@@ -22,6 +22,7 @@ export default function Library() {
   const deleteSong = useAppStore(state => state.deleteSong);
   const playNext = useAppStore(state => state.playNext);
   const addSongToPlaylist = useAppStore(state => state.addSongToPlaylist);
+  const addSongsToPlaylist = useAppStore(state => state.addSongsToPlaylist);
   
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const coverInputRef = React.useRef<HTMLInputElement>(null);
@@ -348,28 +349,52 @@ export default function Library() {
       {/* Playlist Creation Modal */}
       {isCreatingPlaylist && (
          <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-card/90 backdrop-blur-xl w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-border/50">
-               <h3 className="text-xl font-bold mb-4">New Playlist</h3>
-               <p className="text-sm text-foreground/60 mb-4">Adding {selectedSongs.size} tracks.</p>
-               <input 
-                 type="text" 
-                 placeholder="Playlist Name" 
-                 autoFocus
-                 className="w-full bg-background border border-border rounded-lg px-4 py-3 text-foreground mb-6 focus:outline-none focus:border-primary"
-                 value={newPlaylistName}
-                 onChange={(e) => setNewPlaylistName(e.target.value)}
-                 onKeyDown={(e) => {
-                   if (e.key === 'Enter') handleCreatePlaylist();
-                   if (e.key === 'Escape') setIsCreatingPlaylist(false);
-                 }}
-               />
-               <div className="flex justify-end gap-3">
-                 <button onClick={() => setIsCreatingPlaylist(false)} className="px-4 py-2 rounded-lg hover:bg-surface text-foreground font-medium transition-colors">
-                   Cancel
-                 </button>
-                 <button onClick={handleCreatePlaylist} disabled={!newPlaylistName.trim()} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">
-                   Save
-                 </button>
+            <div className="bg-card/90 backdrop-blur-xl w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-border/50 flex flex-col max-h-[80vh]">
+               <h3 className="text-xl font-bold mb-4 shrink-0">Add to Playlist</h3>
+               <p className="text-sm text-foreground/60 mb-4 shrink-0">Adding {selectedSongs.size} tracks.</p>
+
+               {playlists.length > 0 && (
+                 <div className="overflow-y-auto mb-6 flex-1 min-h-0 border border-border/10 rounded-xl bg-surface/30">
+                   {playlists.map(p => (
+                     <button 
+                       key={p.id}
+                       onClick={() => {
+                         addSongsToPlaylist(p.id, Array.from(selectedSongs));
+                         setIsCreatingPlaylist(false);
+                         clearSelection();
+                         toast.success(`Added to ${p.name}`);
+                       }}
+                       className="w-full text-left px-4 py-3 border-b border-border/50 hover:bg-surface transition-colors flex items-center justify-between last:border-b-0"
+                     >
+                       <span className="font-medium truncate pr-4">{p.name}</span>
+                       <span className="text-xs text-foreground/50 shrink-0">{p.songs.length} songs</span>
+                     </button>
+                   ))}
+                 </div>
+               )}
+               
+               <div className="shrink-0">
+                 {playlists.length > 0 && <p className="text-sm font-semibold mb-2">Or create new:</p>}
+                 <input 
+                   type="text" 
+                   placeholder="New Playlist Name" 
+                   autoFocus
+                   className="w-full bg-background border border-border rounded-lg px-4 py-3 text-foreground mb-6 focus:outline-none focus:border-primary"
+                   value={newPlaylistName}
+                   onChange={(e) => setNewPlaylistName(e.target.value)}
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter') handleCreatePlaylist();
+                     if (e.key === 'Escape') setIsCreatingPlaylist(false);
+                   }}
+                 />
+                 <div className="flex justify-end gap-3">
+                   <button onClick={() => setIsCreatingPlaylist(false)} className="px-4 py-2 rounded-lg hover:bg-surface text-foreground font-medium transition-colors">
+                     Cancel
+                   </button>
+                   <button onClick={handleCreatePlaylist} disabled={!newPlaylistName.trim()} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">
+                     {playlists.length > 0 ? "Create" : "Save"}
+                   </button>
+                 </div>
                </div>
             </div>
          </div>
